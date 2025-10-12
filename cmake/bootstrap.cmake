@@ -24,14 +24,4 @@ if (NOT R4 EQUAL 0)
     message(FATAL_ERROR "cmake install failed")
 endif ()
 
-execute_process(COMMAND "${CMAKE_COMMAND}" -E remove_directory "${SRC}" RESULT_VARIABLE R5)
-if (NOT R5 EQUAL 0)
-    message(FATAL_ERROR "cleanup SRC failed")
-endif ()
-
-execute_process(COMMAND "${CMAKE_COMMAND}" -E remove_directory "${BIN}" RESULT_VARIABLE R6)
-if (NOT R6 EQUAL 0)
-    message(FATAL_ERROR "cleanup BIN failed")
-endif ()
-
 message(STATUS "success: installed to ${PREFIX}")
