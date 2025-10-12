@@ -1,10 +1,4 @@
 cmake_minimum_required(VERSION 3.26)
-
-# Set MSVC runtime library policy to NEW to properly handle /MD and /MDd
-if (POLICY CMP0091)
-    cmake_policy(SET CMP0091 NEW)
-endif()
-
 include(cmake/bootstrap.cmake)
 project(vulkan-visualizer-template VERSION 1.0.0 LANGUAGES CXX)
 
@@ -12,11 +6,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# Set MSVC runtime library based on build type
-if (MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-endif()
 
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_BINARY_DIR}/vulkan-visualizer-sdk")
 find_package(VulkanVisualizer CONFIG REQUIRED)
