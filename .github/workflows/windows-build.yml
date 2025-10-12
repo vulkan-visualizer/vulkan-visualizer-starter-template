@@ -1,0 +1,45 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Glslc
+          vulkan-use-cache: true
+
+      - name: Configure CMake
+        run: |
+          cmake -B ${{github.workspace}}/build -S ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}}
+
+      - name: Build
+        run: |
+          cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --parallel
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vulkan-visualizer-template-windows-${{matrix.build_type}}
+          path: |
+            ${{github.workspace}}/build/${{matrix.build_type}}/example_template.exe
+            ${{github.workspace}}/build/${{matrix.build_type}}/*.dll
+            ${{github.workspace}}/build/shaders/*.spv
+          retention-days: 7

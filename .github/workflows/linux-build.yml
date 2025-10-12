@@ -1,0 +1,64 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          libvulkan-dev \
+          vulkan-tools \
+          vulkan-validationlayers \
+          spirv-tools \
+          libx11-dev \
+          libxrandr-dev \
+          libxinerama-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libwayland-dev \
+          libxkbcommon-dev
+
+    - name: Setup Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: latest
+        vulkan-components: Glslc
+        vulkan-use-cache: true
+
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}/build -S ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -G Ninja
+
+    - name: Build
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --parallel
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vulkan-visualizer-template-linux-${{matrix.build_type}}
+        path: |
+          ${{github.workspace}}/build/example_template
+          ${{github.workspace}}/build/shaders/*.spv
+        retention-days: 7
+

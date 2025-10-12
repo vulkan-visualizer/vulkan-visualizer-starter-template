@@ -1,0 +1,51 @@
+name: macOS Build
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Setup Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: latest
+        vulkan-components: Glslc
+        vulkan-use-cache: true
+
+    - name: Install dependencies
+      run: |
+        brew install cmake ninja
+
+    - name: Configure CMake
+      run: |
+        cmake -B ${{github.workspace}}/build -S ${{github.workspace}} -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -G Ninja
+      env:
+        VULKAN_SDK: ${{ env.VULKAN_SDK }}
+
+    - name: Build
+      run: |
+        cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --parallel
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: vulkan-visualizer-template-macos-${{matrix.build_type}}
+        path: |
+          ${{github.workspace}}/build/example_template
+          ${{github.workspace}}/build/shaders/*.spv
+        retention-days: 7
+
