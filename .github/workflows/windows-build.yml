@@ -62,7 +62,6 @@ jobs:
           CMAKE_SH: NOTFOUND
         run: |
           cmake -S . -B build -G "Ninja Multi-Config" `
-            -A x64 -T v143,host=x64 `
             -D CMAKE_C_COMPILER=cl.exe `
             -D CMAKE_CXX_COMPILER=cl.exe `
             -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
