@@ -24,6 +24,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: MSVC Dev Cmd
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install Ninja
+        run: choco install ninja --no-progress
+
       - name: Cache third-party downloads (_deps)
         uses: actions/cache@v4
         with:
@@ -50,9 +58,14 @@ jobs:
 
       - name: Configure CMake
         shell: powershell
+        env:
+          CMAKE_SH: NOTFOUND
         run: |
           cmake -S . -B build -G "Ninja Multi-Config" `
-            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            -A x64 -T v143,host=x64 `
+            -D CMAKE_C_COMPILER=cl.exe `
+            -D CMAKE_CXX_COMPILER=cl.exe `
+            -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Build (${{ matrix.build_type }})
         shell: powershell

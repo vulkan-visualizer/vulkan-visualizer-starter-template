@@ -4,6 +4,11 @@ set(SRC ${CMAKE_CURRENT_BINARY_DIR}/_src/vulkan-visualizer)
 set(BIN ${CMAKE_CURRENT_BINARY_DIR}/_build/vulkan-visualizer)
 set(PREFIX ${CMAKE_CURRENT_BINARY_DIR}/vulkan-visualizer-sdk)
 
+if (EXISTS ${PREFIX})
+    message(STATUS "vulkan-visualizer already installed to ${PREFIX}")
+    return()
+endif ()
+
 execute_process(COMMAND git clone --depth 1 --branch ${BRANCH} ${REPO} ${SRC} RESULT_VARIABLE R1)
 if (NOT R1 EQUAL 0)
     message(FATAL_ERROR "git clone failed")
